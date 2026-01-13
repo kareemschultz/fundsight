@@ -135,14 +135,16 @@ export default function NewLoanPage() {
             <div className="space-y-2">
               <Label htmlFor="lender">Lender / Bank</Label>
               <Select value={lenderId} onValueChange={handleLenderChange}>
-                <SelectTrigger>
+                <SelectTrigger className="w-full">
                   <SelectValue placeholder="Select your lender" />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="min-w-[400px]">
                   {lenders.map((lender) => (
                     <SelectItem key={lender.id} value={lender.id}>
-                      <span className="font-medium">{lender.shortName}</span>
-                      <span className="text-muted-foreground ml-2">— {lender.name}</span>
+                      <div className="flex flex-col py-1">
+                        <span className="font-semibold">{lender.shortName}</span>
+                        <span className="text-muted-foreground text-xs">{lender.name}</span>
+                      </div>
                     </SelectItem>
                   ))}
                 </SelectContent>

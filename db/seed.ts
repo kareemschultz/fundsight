@@ -3,7 +3,7 @@ import { db, lenders } from "../src/lib/db";
 // Guyanese financial institutions that offer car loans
 const guyanaLenders = [
   {
-    name: "Greater Pomeroon-Supenaam Credit Cooperative Union",
+    name: "Guyana Public Service Co-operative Credit Union",
     shortName: "GPSCCU",
     defaultRate: "12.00",
     country: "Guyana",
