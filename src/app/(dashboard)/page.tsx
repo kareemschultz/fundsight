@@ -3,7 +3,7 @@ import { db, loans } from "@/lib/db";
 import { eq } from "drizzle-orm";
 import Link from "next/link";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { buttonVariants } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button-variants";
 import { Progress } from "@/components/ui/progress";
 
 export const metadata = {
