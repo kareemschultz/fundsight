@@ -141,7 +141,8 @@ export default function NewLoanPage() {
                 <SelectContent>
                   {lenders.map((lender) => (
                     <SelectItem key={lender.id} value={lender.id}>
-                      {lender.name}
+                      <span className="font-medium">{lender.shortName}</span>
+                      <span className="text-muted-foreground ml-2">— {lender.name}</span>
                     </SelectItem>
                   ))}
                 </SelectContent>
