@@ -1,8 +1,8 @@
 <p align="center">
-  <img src="https://img.shields.io/badge/FinTrack-Personal%20Finance%20Platform-2563eb?style=for-the-badge&logo=data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0id2hpdGUiPjxwYXRoIGQ9Ik0xMiAyQzYuNDggMiAyIDYuNDggMiAxMnM0LjQ4IDEwIDEwIDEwIDEwLTQuNDggMTAtMTBTMTcuNTIgMiAxMiAyem0wIDE4Yy00LjQxIDAtOC0zLjU5LTgtOHMzLjU5LTggOC04IDggMy41OSA4IDgtMy41OSA4LTggNHptLjMxLTguODZjLTEuNzctLjQ1LTIuMzQtLjk0LTIuMzQtMS42NyAwLS44NC43OS0xLjQzIDIuMS0xLjQzIDEuMzggMCAxLjkuNjYgMS45NCAxLjY0aDEuNzFjLS4wNS0xLjM0LS44Ny0yLjU3LTIuNDktMi45N1YyLjVoLTIuMzR2MS41OGMtMS41MS4zMi0yLjcyIDEuMy0yLjcyIDIuNTEgMCAxLjYgMS4zMiAyLjQgMy4yOCAyLjg4IDEuNzYuNDMgMi4xMS4wNiAyLjExIDEuNjUgMCAuNDctLjMzIDEuMjItMS44NSAxLjIyLTEuNDkgMC0yLjA3LS42My0yLjE1LTEuNjRoLTEuN2MuMDkgMS43MyAxLjM5IDIuNyAyLjgxIDMuMDJ2MS42aDIuMzR2LTEuNThjMS41Mi0uMjkgMi43Mi0xLjE2IDIuNzItMi41MiAwLTEuOTctMS41My0yLjY4LTMuMzEtMy4xNHoiLz48L3N2Zz4=&logoColor=white" alt="FinTrack — Personal Finance Platform" />
+  <img src="https://img.shields.io/badge/FundSight-Personal%20Finance%20Platform-2563eb?style=for-the-badge&logo=data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0id2hpdGUiPjxwYXRoIGQ9Ik0xMiAyQzYuNDggMiAyIDYuNDggMiAxMnM0LjQ4IDEwIDEwIDEwIDEwLTQuNDggMTAtMTBTMTcuNTIgMiAxMiAyem0wIDE4Yy00LjQxIDAtOC0zLjU5LTgtOHMzLjU5LTggOC04IDggMy41OSA4IDgtMy41OSA4LTggNHptLjMxLTguODZjLTEuNzctLjQ1LTIuMzQtLjk0LTIuMzQtMS42NyAwLS44NC43OS0xLjQzIDIuMS0xLjQzIDEuMzggMCAxLjkuNjYgMS45NCAxLjY0aDEuNzFjLS4wNS0xLjM0LS44Ny0yLjU3LTIuNDktMi45N1YyLjVoLTIuMzR2MS41OGMtMS41MS4zMi0yLjcyIDEuMy0yLjcyIDIuNTEgMCAxLjYgMS4zMiAyLjQgMy4yOCAyLjg4IDEuNzYuNDMgMi4xMS4wNiAyLjExIDEuNjUgMCAuNDctLjMzIDEuMjItMS44NSAxLjIyLTEuNDkgMC0yLjA3LS42My0yLjE1LTEuNjRoLTEuN2MuMDkgMS43MyAxLjM5IDIuNyAyLjgxIDMuMDJ2MS42aDIuMzR2LTEuNThjMS41Mi0uMjkgMi43Mi0xLjE2IDIuNzItMi41MiAwLTEuOTctMS41My0yLjY4LTMuMzEtMy4xNHoiLz48L3N2Zz4=&logoColor=white" alt="FundSight — Personal Finance Platform" />
 </p>
 
-<h1 align="center">💰 FinTrack — Personal Finance Platform</h1>
+<h1 align="center">💰 FundSight — Personal Finance Platform</h1>
 
 <p align="center">
   <strong>Track loans, plan payments, and build your path to financial freedom.</strong>
@@ -52,7 +52,7 @@
 
 ## 📖 About
 
-**FinTrack** is a full-stack personal finance management platform that helps you take control of your debt and plan your way to financial freedom. It combines loan portfolio tracking, intelligent payment planning, scenario modelling, and rich analytics into a single, polished application.
+**FundSight** is a full-stack personal finance management platform that helps you take control of your debt and plan your way to financial freedom. It combines loan portfolio tracking, intelligent payment planning, scenario modelling, and rich analytics into a single, polished application.
 
 The platform ships pre-configured for the **Guyanese market** — with GYD as the default currency and seven major local financial institutions already seeded — but its architecture is currency- and locale-agnostic, making it easy to adapt for any market.
 
@@ -749,7 +749,7 @@ bun run db:studio
 
 ## 🏦 Pre-Configured Lenders
 
-FinTrack ships with major Guyanese financial institutions ready to go:
+FundSight ships with major Guyanese financial institutions ready to go:
 
 | Institution | Short Name | Default Rate |
 |-------------|------------|:------------:|

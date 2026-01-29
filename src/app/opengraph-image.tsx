@@ -1,7 +1,7 @@
 import { ImageResponse } from "next/og";
 
 export const runtime = "edge";
-export const alt = "FinTrack — Personal Finance Platform";
+export const alt = "FundSight — Personal Finance Platform";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -36,7 +36,7 @@ export default async function Image() {
             marginBottom: 24,
           }}
         >
-          FT
+          FS
         </div>
 
         {/* Title */}
@@ -49,7 +49,7 @@ export default async function Image() {
             textAlign: "center",
           }}
         >
-          FinTrack
+          FundSight
         </div>
 
         {/* Subtitle */}
