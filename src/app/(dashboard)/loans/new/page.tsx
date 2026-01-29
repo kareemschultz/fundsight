@@ -156,7 +156,9 @@ export default function NewLoanPage() {
               <Label htmlFor="vehicle">Vehicle Description</Label>
               <Input
                 id="vehicle"
-                placeholder="e.g., BMW X1 2019"
+                name="vehicle"
+                placeholder="e.g., BMW X1 2019…"
+                autoComplete="off"
                 value={vehicleDescription}
                 onChange={(e) => setVehicleDescription(e.target.value)}
               />
@@ -168,8 +170,11 @@ export default function NewLoanPage() {
                 <Label htmlFor="originalAmount">Original Loan Amount (GYD)</Label>
                 <Input
                   id="originalAmount"
+                  name="originalAmount"
                   type="number"
-                  placeholder="5000000"
+                  inputMode="numeric"
+                  placeholder="5,000,000…"
+                  autoComplete="off"
                   value={originalAmount}
                   onChange={(e) => handleOriginalAmountChange(e.target.value)}
                   required
@@ -179,8 +184,11 @@ export default function NewLoanPage() {
                 <Label htmlFor="currentBalance">Current Balance (GYD)</Label>
                 <Input
                   id="currentBalance"
+                  name="currentBalance"
                   type="number"
-                  placeholder="Same as original if new loan"
+                  inputMode="numeric"
+                  placeholder="Same as original if new…"
+                  autoComplete="off"
                   value={currentBalance}
                   onChange={(e) => setCurrentBalance(e.target.value)}
                 />
@@ -193,8 +201,11 @@ export default function NewLoanPage() {
                 <Label htmlFor="monthlyPayment">Monthly Payment (GYD)</Label>
                 <Input
                   id="monthlyPayment"
+                  name="monthlyPayment"
                   type="number"
-                  placeholder="111222"
+                  inputMode="numeric"
+                  placeholder="111,222…"
+                  autoComplete="off"
                   value={monthlyPayment}
                   onChange={(e) => setMonthlyPayment(e.target.value)}
                   required
@@ -204,9 +215,12 @@ export default function NewLoanPage() {
                 <Label htmlFor="interestRate">Annual Interest Rate (%)</Label>
                 <Input
                   id="interestRate"
+                  name="interestRate"
                   type="number"
+                  inputMode="decimal"
                   step="0.01"
-                  placeholder="12"
+                  placeholder="12…"
+                  autoComplete="off"
                   value={interestRate}
                   onChange={(e) => setInterestRate(e.target.value)}
                   required
@@ -220,7 +234,9 @@ export default function NewLoanPage() {
                 <Label htmlFor="startDate">Loan Start Date</Label>
                 <Input
                   id="startDate"
+                  name="startDate"
                   type="date"
+                  autoComplete="off"
                   value={startDate}
                   onChange={(e) => setStartDate(e.target.value)}
                   required
@@ -230,8 +246,11 @@ export default function NewLoanPage() {
                 <Label htmlFor="termMonths">Loan Term (months)</Label>
                 <Input
                   id="termMonths"
+                  name="termMonths"
                   type="number"
-                  placeholder="60"
+                  inputMode="numeric"
+                  placeholder="60…"
+                  autoComplete="off"
                   value={termMonths}
                   onChange={(e) => setTermMonths(e.target.value)}
                 />
@@ -248,7 +267,7 @@ export default function NewLoanPage() {
                 Cancel
               </Button>
               <Button type="submit" disabled={loading}>
-                {loading ? "Creating..." : "Create Loan"}
+                {loading ? "Creating…" : "Create Loan"}
               </Button>
             </div>
           </form>

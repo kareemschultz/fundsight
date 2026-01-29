@@ -67,3 +67,13 @@ Thumbs.db
 # Logs
 logs/
 *.log
+
+# Agent skills (development only)
+.agents/
+.skills/
+
+# Agent config directories (symlinks)
+.agent/
+.claude/
+.gemini/
+skills/

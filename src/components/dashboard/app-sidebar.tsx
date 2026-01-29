@@ -140,9 +140,9 @@ export function AppSidebar({ user }: AppSidebarProps) {
             size="icon"
             className="shrink-0"
             onClick={() => signOut({ callbackUrl: "/login" })}
-            title="Sign out"
+            aria-label="Sign out"
           >
-            <HugeiconsIcon icon={Logout03Icon} size={18} />
+            <HugeiconsIcon icon={Logout03Icon} size={18} aria-hidden="true" />
           </Button>
         </div>
       </SidebarFooter>

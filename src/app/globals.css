@@ -120,14 +120,33 @@
   * {
     @apply border-border outline-ring/50;
   }
+
+  /* @see web-design-guidelines: Touch — prevents 300ms double-tap-to-zoom delay */
+  html {
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* @see web-design-guidelines: Dark Mode — fixes native inputs, scrollbar in dark */
+  html.dark {
+    color-scheme: dark;
+  }
+
   body {
     @apply bg-background text-foreground;
   }
 }
 
 /* Tabular figures for financial data — ensures numbers align in columns */
+/* @see web-design-guidelines: Typography — font-variant-numeric: tabular-nums */
 .tabular-nums {
   font-variant-numeric: tabular-nums;
+}
+
+/* Balanced headings — prevent widows/orphans */
+/* @see web-design-guidelines: Typography — text-wrap: balance */
+h1, h2, h3 {
+  text-wrap: balance;
 }
 
 /* Smooth page transitions */

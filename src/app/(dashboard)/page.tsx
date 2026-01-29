@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { auth } from "@/lib/auth";
 import { db, loans } from "@/lib/db";
 import { eq } from "drizzle-orm";
 import Link from "next/link";
@@ -7,6 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { buttonVariants } from "@/components/ui/button-variants";
 import { Progress } from "@/components/ui/progress";
 import { formatCurrency } from "@/lib/constants";
+import { getCurrentUser } from "@/lib/auth-cache";
 
 export const metadata: Metadata = {
   title: "Dashboard",
@@ -14,15 +14,16 @@ export const metadata: Metadata = {
 };
 
 export default async function DashboardPage() {
-  const session = await auth();
+  // @see vercel-react-best-practices: server-cache-react
+  const user = await getCurrentUser();
 
-  if (!session?.user) {
+  if (!user) {
     return null;
   }
 
   // Fetch user's loans
   const userLoans = await db.query.loans.findMany({
-    where: eq(loans.userId, session.user.id),
+    where: eq(loans.userId, user.id),
     with: {
       lender: true,
     },
@@ -53,7 +54,7 @@ export default async function DashboardPage() {
       {/* Welcome Header */}
       <div>
         <h1 className="text-3xl font-bold tracking-tight">
-          Welcome back, {session.user.name?.split(" ")[0]}
+          Welcome back, {user.name?.split(" ")[0]}
         </h1>
         <p className="text-muted-foreground">
           {hasLoans

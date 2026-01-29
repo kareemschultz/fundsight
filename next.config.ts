@@ -9,6 +9,18 @@ const nextConfig: NextConfig = {
   // Strip X-Powered-By header
   poweredByHeader: false,
 
+  // Optimize barrel file imports — prevents loading entire icon/component libraries
+  // @see vercel-react-best-practices: bundle-barrel-imports
+  experimental: {
+    optimizePackageImports: [
+      "@hugeicons/core-free-icons",
+      "@hugeicons/react",
+      "recharts",
+      "date-fns",
+      "lucide-react",
+    ],
+  },
+
   // Security headers
   headers: async () => [
     {

@@ -156,7 +156,7 @@ export default function SettingsPage() {
                 </div>
 
                 <Button type="submit" disabled={loading}>
-                  {loading ? "Saving..." : "Save Changes"}
+                  {loading ? "Saving…" : "Save Changes"}
                 </Button>
               </form>
             </CardContent>
@@ -226,7 +226,7 @@ export default function SettingsPage() {
                 </div>
 
                 <Button type="submit" disabled={loading}>
-                  {loading ? "Saving..." : "Save Financial Profile"}
+                  {loading ? "Saving…" : "Save Financial Profile"}
                 </Button>
               </form>
             </CardContent>
@@ -272,7 +272,7 @@ export default function SettingsPage() {
               </div>
 
               <Button disabled={loading}>
-                {loading ? "Saving..." : "Save Preferences"}
+                {loading ? "Saving…" : "Save Preferences"}
               </Button>
             </CardContent>
           </Card>
