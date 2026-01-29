@@ -3,7 +3,7 @@ import { RegisterForm } from "@/components/auth/register-form";
 
 export const metadata: Metadata = {
   title: "Create Account",
-  description: "Create your FundSight account to start tracking loans and managing your finances.",
+  description: "Create your Helm account and start charting your course to financial freedom.",
 };
 
 export default function RegisterPage() {

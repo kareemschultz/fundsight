@@ -2,10 +2,10 @@
 // Application Constants
 // ============================================================================
 
-export const APP_NAME = "FundSight — Personal Finance Platform";
-export const APP_SHORT_NAME = "FundSight";
+export const APP_NAME = "Helm — Personal Finance Platform";
+export const APP_SHORT_NAME = "Helm";
 export const APP_DESCRIPTION =
-  "Personal finance management platform for tracking loans, planning payments, and building a path to financial freedom.";
+  "Take the helm of your finances. Track loans, plan payments, model scenarios, and chart your course to financial freedom.";
 export const APP_URL = process.env.NEXTAUTH_URL || "http://localhost:3000";
 
 // Currency formatting

@@ -1,7 +1,7 @@
 import { ImageResponse } from "next/og";
 
 export const runtime = "edge";
-export const alt = "FundSight — Personal Finance Platform";
+export const alt = "Helm — Personal Finance Platform";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -36,7 +36,7 @@ export default async function Image() {
             marginBottom: 24,
           }}
         >
-          FS
+          H
         </div>
 
         {/* Title */}
@@ -49,7 +49,7 @@ export default async function Image() {
             textAlign: "center",
           }}
         >
-          FundSight
+          Helm
         </div>
 
         {/* Subtitle */}
@@ -61,7 +61,7 @@ export default async function Image() {
             maxWidth: 700,
           }}
         >
-          Personal finance management — loans, payments & financial planning
+          Take the helm of your finances
         </div>
 
         {/* Tech badges */}
