@@ -8,6 +8,7 @@ import {
 import { AppSidebar } from "@/components/dashboard/app-sidebar";
 import { Separator } from "@/components/ui/separator";
 import { ThemeToggle } from "@/components/dashboard/theme-toggle";
+import { NotificationBell } from "@/components/dashboard/notification-bell";
 import { DashboardBreadcrumbs } from "@/components/dashboard/breadcrumbs";
 
 export default async function DashboardLayout({
@@ -32,6 +33,7 @@ export default async function DashboardLayout({
           <Separator orientation="vertical" className="h-5" />
           <DashboardBreadcrumbs />
           <div className="ml-auto flex items-center gap-2">
+            <NotificationBell />
             <ThemeToggle />
           </div>
         </header>

@@ -1,7 +1,13 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import {
@@ -11,6 +17,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   ResponsiveContainer,
   BarChart,
@@ -26,6 +33,9 @@ import {
   AreaChart,
   Area,
 } from "recharts";
+import { MultiLoanChart } from "@/components/dashboard/multi-loan-chart";
+import { CorrelationChart } from "@/components/dashboard/correlation-chart";
+import { DebtRatioChart } from "@/components/dashboard/debt-ratio-chart";
 
 interface Loan {
   id: string;
@@ -51,17 +61,24 @@ export default function AnalyticsPage() {
   const [payments, setPayments] = useState<Payment[]>([]);
   const [selectedLoanId, setSelectedLoanId] = useState("");
   const [loading, setLoading] = useState(true);
+  const [monthlyIncome, setMonthlyIncome] = useState(0);
 
   useEffect(() => {
     Promise.all([
       fetch("/api/loans").then((r) => r.json()),
       fetch("/api/payments").then((r) => r.json()),
+      fetch("/api/users/financial-profile")
+        .then((r) => r.json())
+        .catch(() => null),
     ])
-      .then(([loansData, paymentsData]) => {
+      .then(([loansData, paymentsData, profileData]) => {
         setLoans(loansData);
         setPayments(paymentsData);
         if (loansData.length > 0) {
           setSelectedLoanId(loansData[0].id);
+        }
+        if (profileData?.monthlyIncome) {
+          setMonthlyIncome(parseFloat(profileData.monthlyIncome));
         }
       })
       .finally(() => setLoading(false));
@@ -103,11 +120,12 @@ export default function AnalyticsPage() {
     const current = parseFloat(selectedLoan.currentBalance);
     const progress = ((original - current) / original) * 100;
 
-    // Score factors
-    const progressScore = Math.min(progress, 100) * 0.4; // 40% weight
-    const paymentConsistency = payments.length > 0 ? 30 : 0; // 30% weight
-    const extraPayments = payments.filter((p) => p.paymentType === "extra").length;
-    const extraScore = Math.min(extraPayments * 10, 30); // 30% weight
+    const progressScore = Math.min(progress, 100) * 0.4;
+    const paymentConsistency = payments.length > 0 ? 30 : 0;
+    const extraPayments = payments.filter(
+      (p) => p.paymentType === "extra"
+    ).length;
+    const extraScore = Math.min(extraPayments * 10, 30);
 
     const total = progressScore + paymentConsistency + extraScore;
 
@@ -139,7 +157,11 @@ export default function AnalyticsPage() {
     let regularBalance = balance;
     let extraBalance = balance;
 
-    for (let month = 0; month <= 60 && (regularBalance > 0 || extraBalance > 0); month++) {
+    for (
+      let month = 0;
+      month <= 60 && (regularBalance > 0 || extraBalance > 0);
+      month++
+    ) {
       data.push({
         month,
         regular: Math.round(Math.max(0, regularBalance)),
@@ -216,13 +238,16 @@ export default function AnalyticsPage() {
       }));
   }, [payments]);
 
-  // Interest vs Principal breakdown for all payments
+  // Interest vs Principal breakdown
   const interestVsPrincipal = useMemo(() => {
     if (!selectedLoan) return { principal: 0, interest: 0 };
 
     const original = parseFloat(selectedLoan.originalAmount);
     const current = parseFloat(selectedLoan.currentBalance);
-    const totalPaid = payments.reduce((sum, p) => sum + parseFloat(p.amount), 0);
+    const totalPaid = payments.reduce(
+      (sum, p) => sum + parseFloat(p.amount),
+      0
+    );
     const principalPaid = original - current;
     const interestPaid = totalPaid - principalPaid;
 
@@ -254,7 +279,9 @@ export default function AnalyticsPage() {
             <p className="text-muted-foreground mb-4">
               Add a loan to see analytics.
             </p>
-            <Button onClick={() => window.location.href = "/loans/new"}>
+            <Button
+              onClick={() => (window.location.href = "/loans/new")}
+            >
               Add Loan
             </Button>
           </CardContent>
@@ -288,221 +315,310 @@ export default function AnalyticsPage() {
         </div>
       </div>
 
-      {/* Health Score & Summary */}
-      <div className="grid gap-4 md:grid-cols-4">
-        {healthScore && (
+      <Tabs defaultValue="overview" className="space-y-6">
+        <TabsList>
+          <TabsTrigger value="overview">Overview</TabsTrigger>
+          <TabsTrigger value="comparison">Multi-Loan</TabsTrigger>
+          <TabsTrigger value="trends">Trends</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="overview" className="space-y-6">
+          {/* Health Score & Summary */}
+          <div className="grid gap-4 md:grid-cols-4">
+            {healthScore && (
+              <Card>
+                <CardHeader className="pb-2">
+                  <CardDescription>Financial Health Score</CardDescription>
+                  <CardTitle
+                    className={`text-4xl ${healthScore.color}`}
+                  >
+                    {healthScore.score}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <Progress value={healthScore.score} className="h-2" />
+                  <p
+                    className={`text-sm mt-2 font-medium ${healthScore.color}`}
+                  >
+                    {healthScore.rating}
+                  </p>
+                </CardContent>
+              </Card>
+            )}
+
+            {selectedLoan && (
+              <>
+                <Card>
+                  <CardHeader className="pb-2">
+                    <CardDescription>Loan Progress</CardDescription>
+                    <CardTitle className="text-2xl">
+                      {(
+                        ((parseFloat(selectedLoan.originalAmount) -
+                          parseFloat(selectedLoan.currentBalance)) /
+                          parseFloat(selectedLoan.originalAmount)) *
+                        100
+                      ).toFixed(1)}
+                      %
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <Progress
+                      value={
+                        ((parseFloat(selectedLoan.originalAmount) -
+                          parseFloat(selectedLoan.currentBalance)) /
+                          parseFloat(selectedLoan.originalAmount)) *
+                        100
+                      }
+                      className="h-2"
+                    />
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader className="pb-2">
+                    <CardDescription>Principal Paid</CardDescription>
+                    <CardTitle className="text-2xl text-green-600 dark:text-green-400">
+                      {formatCurrency(interestVsPrincipal.principal)}
+                    </CardTitle>
+                  </CardHeader>
+                </Card>
+
+                <Card>
+                  <CardHeader className="pb-2">
+                    <CardDescription>Interest Paid</CardDescription>
+                    <CardTitle className="text-2xl text-orange-600 dark:text-orange-400">
+                      {formatCurrency(interestVsPrincipal.interest)}
+                    </CardTitle>
+                  </CardHeader>
+                </Card>
+              </>
+            )}
+          </div>
+
+          {/* Payoff Projection Chart */}
           <Card>
-            <CardHeader className="pb-2">
-              <CardDescription>Financial Health Score</CardDescription>
-              <CardTitle className={`text-4xl ${healthScore.color}`}>
-                {healthScore.score}
-              </CardTitle>
+            <CardHeader>
+              <CardTitle>Payoff Projection</CardTitle>
+              <CardDescription>
+                Compare regular payments vs adding $100K every 6 months
+              </CardDescription>
             </CardHeader>
             <CardContent>
-              <Progress value={healthScore.score} className="h-2" />
-              <p className={`text-sm mt-2 font-medium ${healthScore.color}`}>
-                {healthScore.rating}
-              </p>
+              <div className="h-80">
+                <ResponsiveContainer width="100%" height="100%">
+                  <AreaChart data={payoffProjection}>
+                    <CartesianGrid
+                      strokeDasharray="3 3"
+                      className="stroke-muted"
+                    />
+                    <XAxis
+                      dataKey="month"
+                      tickFormatter={(m) => `M${m}`}
+                      className="text-xs"
+                    />
+                    <YAxis
+                      tickFormatter={formatShortCurrency}
+                      className="text-xs"
+                    />
+                    <Tooltip
+                      formatter={(value: number) =>
+                        formatCurrency(value)
+                      }
+                      labelFormatter={(label) => `Month ${label}`}
+                    />
+                    <Legend />
+                    <Area
+                      type="monotone"
+                      dataKey="regular"
+                      name="Regular Payments"
+                      stroke="#f59e0b"
+                      fill="#fef3c7"
+                      strokeWidth={2}
+                    />
+                    <Area
+                      type="monotone"
+                      dataKey="withExtra"
+                      name="With Extra Payments"
+                      stroke="#22c55e"
+                      fill="#dcfce7"
+                      strokeWidth={2}
+                    />
+                  </AreaChart>
+                </ResponsiveContainer>
+              </div>
             </CardContent>
           </Card>
-        )}
 
-        {selectedLoan && (
-          <>
+          <div className="grid gap-4 md:grid-cols-2">
+            {/* Payment Sources Pie Chart */}
             <Card>
-              <CardHeader className="pb-2">
-                <CardDescription>Loan Progress</CardDescription>
-                <CardTitle className="text-2xl">
-                  {(((parseFloat(selectedLoan.originalAmount) - parseFloat(selectedLoan.currentBalance)) / parseFloat(selectedLoan.originalAmount)) * 100).toFixed(1)}%
-                </CardTitle>
+              <CardHeader>
+                <CardTitle>Payment Sources</CardTitle>
+                <CardDescription>
+                  Where your payments come from
+                </CardDescription>
               </CardHeader>
               <CardContent>
-                <Progress
-                  value={(parseFloat(selectedLoan.originalAmount) - parseFloat(selectedLoan.currentBalance)) / parseFloat(selectedLoan.originalAmount) * 100}
-                  className="h-2"
-                />
+                {paymentsBySource.length > 0 ? (
+                  <div className="h-64">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <PieChart>
+                        <Pie
+                          data={paymentsBySource}
+                          cx="50%"
+                          cy="50%"
+                          innerRadius={60}
+                          outerRadius={80}
+                          paddingAngle={5}
+                          dataKey="value"
+                          label={({ name, percent }) =>
+                            `${name} ${(percent * 100).toFixed(0)}%`
+                          }
+                        >
+                          {paymentsBySource.map((entry, index) => (
+                            <Cell
+                              key={`cell-${index}`}
+                              fill={entry.color}
+                            />
+                          ))}
+                        </Pie>
+                        <Tooltip
+                          formatter={(value: number) =>
+                            formatCurrency(value)
+                          }
+                        />
+                      </PieChart>
+                    </ResponsiveContainer>
+                  </div>
+                ) : (
+                  <div className="h-64 flex items-center justify-center">
+                    <p className="text-muted-foreground">
+                      No payment data yet
+                    </p>
+                  </div>
+                )}
               </CardContent>
             </Card>
 
+            {/* Monthly Payment Trend */}
             <Card>
-              <CardHeader className="pb-2">
-                <CardDescription>Principal Paid</CardDescription>
-                <CardTitle className="text-2xl text-green-600 dark:text-green-400">
-                  {formatCurrency(interestVsPrincipal.principal)}
-                </CardTitle>
+              <CardHeader>
+                <CardTitle>Monthly Payment Trend</CardTitle>
+                <CardDescription>
+                  Regular vs extra payments over time
+                </CardDescription>
               </CardHeader>
+              <CardContent>
+                {monthlyTrend.length > 0 ? (
+                  <div className="h-64">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart data={monthlyTrend}>
+                        <CartesianGrid
+                          strokeDasharray="3 3"
+                          className="stroke-muted"
+                        />
+                        <XAxis dataKey="month" className="text-xs" />
+                        <YAxis
+                          tickFormatter={formatShortCurrency}
+                          className="text-xs"
+                        />
+                        <Tooltip
+                          formatter={(value: number) =>
+                            formatCurrency(value)
+                          }
+                        />
+                        <Legend />
+                        <Bar
+                          dataKey="regular"
+                          name="Regular"
+                          fill="#3b82f6"
+                          stackId="a"
+                        />
+                        <Bar
+                          dataKey="extra"
+                          name="Extra"
+                          fill="#22c55e"
+                          stackId="a"
+                        />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </div>
+                ) : (
+                  <div className="h-64 flex items-center justify-center">
+                    <p className="text-muted-foreground">
+                      No payment data yet
+                    </p>
+                  </div>
+                )}
+              </CardContent>
             </Card>
-
-            <Card>
-              <CardHeader className="pb-2">
-                <CardDescription>Interest Paid</CardDescription>
-                <CardTitle className="text-2xl text-orange-600 dark:text-orange-400">
-                  {formatCurrency(interestVsPrincipal.interest)}
-                </CardTitle>
-              </CardHeader>
-            </Card>
-          </>
-        )}
-      </div>
-
-      {/* Payoff Projection Chart */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Payoff Projection</CardTitle>
-          <CardDescription>
-            Compare regular payments vs adding $100K every 6 months
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="h-80">
-            <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={payoffProjection}>
-                <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-                <XAxis
-                  dataKey="month"
-                  tickFormatter={(m) => `M${m}`}
-                  className="text-xs"
-                />
-                <YAxis
-                  tickFormatter={formatShortCurrency}
-                  className="text-xs"
-                />
-                <Tooltip
-                  formatter={(value: number) => formatCurrency(value)}
-                  labelFormatter={(label) => `Month ${label}`}
-                />
-                <Legend />
-                <Area
-                  type="monotone"
-                  dataKey="regular"
-                  name="Regular Payments"
-                  stroke="#f59e0b"
-                  fill="#fef3c7"
-                  strokeWidth={2}
-                />
-                <Area
-                  type="monotone"
-                  dataKey="withExtra"
-                  name="With Extra Payments"
-                  stroke="#22c55e"
-                  fill="#dcfce7"
-                  strokeWidth={2}
-                />
-              </AreaChart>
-            </ResponsiveContainer>
           </div>
-        </CardContent>
-      </Card>
 
-      <div className="grid gap-4 md:grid-cols-2">
-        {/* Payment Sources Pie Chart */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Payment Sources</CardTitle>
-            <CardDescription>
-              Where your payments come from
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            {paymentsBySource.length > 0 ? (
-              <div className="h-64">
-                <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
-                    <Pie
-                      data={paymentsBySource}
-                      cx="50%"
-                      cy="50%"
-                      innerRadius={60}
-                      outerRadius={80}
-                      paddingAngle={5}
-                      dataKey="value"
-                      label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
-                    >
-                      {paymentsBySource.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={entry.color} />
-                      ))}
-                    </Pie>
-                    <Tooltip formatter={(value: number) => formatCurrency(value)} />
-                  </PieChart>
-                </ResponsiveContainer>
+          {/* Interest vs Principal */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Interest vs Principal Breakdown</CardTitle>
+              <CardDescription>
+                How much of your payments went to principal vs interest
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div>
+                  <div className="flex justify-between text-sm mb-1">
+                    <span>Principal Paid</span>
+                    <span className="font-medium text-green-600 dark:text-green-400">
+                      {formatCurrency(interestVsPrincipal.principal)}
+                    </span>
+                  </div>
+                  <Progress
+                    value={
+                      (interestVsPrincipal.principal /
+                        (interestVsPrincipal.principal +
+                          interestVsPrincipal.interest +
+                          1)) *
+                      100
+                    }
+                    className="h-3 bg-orange-200 dark:bg-orange-900"
+                  />
+                </div>
+                <div>
+                  <div className="flex justify-between text-sm mb-1">
+                    <span>Interest Paid</span>
+                    <span className="font-medium text-orange-600 dark:text-orange-400">
+                      {formatCurrency(interestVsPrincipal.interest)}
+                    </span>
+                  </div>
+                  <Progress
+                    value={
+                      (interestVsPrincipal.interest /
+                        (interestVsPrincipal.principal +
+                          interestVsPrincipal.interest +
+                          1)) *
+                      100
+                    }
+                    className="h-3"
+                  />
+                </div>
               </div>
-            ) : (
-              <div className="h-64 flex items-center justify-center">
-                <p className="text-muted-foreground">No payment data yet</p>
-              </div>
-            )}
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        </TabsContent>
 
-        {/* Monthly Payment Trend */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Monthly Payment Trend</CardTitle>
-            <CardDescription>
-              Regular vs extra payments over time
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            {monthlyTrend.length > 0 ? (
-              <div className="h-64">
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={monthlyTrend}>
-                    <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-                    <XAxis dataKey="month" className="text-xs" />
-                    <YAxis tickFormatter={formatShortCurrency} className="text-xs" />
-                    <Tooltip formatter={(value: number) => formatCurrency(value)} />
-                    <Legend />
-                    <Bar dataKey="regular" name="Regular" fill="#3b82f6" stackId="a" />
-                    <Bar dataKey="extra" name="Extra" fill="#22c55e" stackId="a" />
-                  </BarChart>
-                </ResponsiveContainer>
-              </div>
-            ) : (
-              <div className="h-64 flex items-center justify-center">
-                <p className="text-muted-foreground">No payment data yet</p>
-              </div>
-            )}
-          </CardContent>
-        </Card>
-      </div>
+        {/* Multi-Loan Comparison Tab */}
+        <TabsContent value="comparison" className="space-y-6">
+          <MultiLoanChart loans={loans} />
+          <CorrelationChart
+            payments={payments}
+            loan={selectedLoan || null}
+          />
+        </TabsContent>
 
-      {/* Interest vs Principal */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Interest vs Principal Breakdown</CardTitle>
-          <CardDescription>
-            How much of your payments went to principal vs interest
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            <div>
-              <div className="flex justify-between text-sm mb-1">
-                <span>Principal Paid</span>
-                <span className="font-medium text-green-600 dark:text-green-400">
-                  {formatCurrency(interestVsPrincipal.principal)}
-                </span>
-              </div>
-              <Progress
-                value={interestVsPrincipal.principal / (interestVsPrincipal.principal + interestVsPrincipal.interest + 1) * 100}
-                className="h-3 bg-orange-200 dark:bg-orange-900"
-              />
-            </div>
-            <div>
-              <div className="flex justify-between text-sm mb-1">
-                <span>Interest Paid</span>
-                <span className="font-medium text-orange-600 dark:text-orange-400">
-                  {formatCurrency(interestVsPrincipal.interest)}
-                </span>
-              </div>
-              <Progress
-                value={interestVsPrincipal.interest / (interestVsPrincipal.principal + interestVsPrincipal.interest + 1) * 100}
-                className="h-3"
-              />
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+        {/* Trends Tab */}
+        <TabsContent value="trends" className="space-y-6">
+          <DebtRatioChart loans={loans} monthlyIncome={monthlyIncome} />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }

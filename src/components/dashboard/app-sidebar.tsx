@@ -27,17 +27,21 @@ import {
   Settings01Icon,
   Logout03Icon,
   WalletDone01Icon,
+  UserGroupIcon,
+  Building06Icon,
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 
 const navigation = [
-  { name: "Dashboard", href: "/", icon: Home03Icon },
+  { name: "Dashboard", href: "/home", icon: Home03Icon },
   { name: "My Loans", href: "/loans", icon: Car01Icon },
   { name: "Payments", href: "/tracker", icon: WalletDone01Icon },
   { name: "Planning", href: "/planning", icon: Calendar03Icon },
   { name: "Scenarios", href: "/scenarios", icon: ChartLineData02Icon },
   { name: "Analytics", href: "/analytics", icon: Analytics01Icon },
   { name: "Reports", href: "/reports", icon: FileExportIcon },
+  { name: "Household", href: "/household", icon: UserGroupIcon },
+  { name: "Lenders", href: "/lenders", icon: Building06Icon },
 ];
 
 interface AppSidebarProps {
@@ -62,9 +66,9 @@ export function AppSidebar({ user }: AppSidebarProps) {
   return (
     <Sidebar>
       <SidebarHeader className="border-b border-sidebar-border">
-        <Link href="/" className="flex items-center gap-3 px-2 py-3 transition-opacity hover:opacity-80">
+        <Link href="/home" className="flex items-center gap-3 px-2 py-3 transition-opacity hover:opacity-80">
           <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary text-primary-foreground font-bold text-sm shadow-sm">
-            H
+            FS
           </div>
           <div className="flex flex-col">
             <span className="text-sm font-semibold">FundSight</span>
@@ -83,7 +87,7 @@ export function AppSidebar({ user }: AppSidebarProps) {
               {navigation.map((item) => {
                 const isActive =
                   pathname === item.href ||
-                  (item.href !== "/" && pathname.startsWith(item.href));
+                  (item.href !== "/home" && pathname.startsWith(item.href));
                 return (
                   <SidebarMenuItem key={item.name}>
                     <SidebarMenuButton

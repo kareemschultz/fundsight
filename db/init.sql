@@ -119,6 +119,91 @@ CREATE TABLE IF NOT EXISTS user_settings (
 );
 
 -- ============================================================================
+-- HOUSEHOLDS TABLE
+-- ============================================================================
+CREATE TABLE IF NOT EXISTS households (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    name VARCHAR(100) NOT NULL,
+    invite_code VARCHAR(20) NOT NULL UNIQUE,
+    created_by UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    created_at TIMESTAMPTZ DEFAULT NOW() NOT NULL,
+    updated_at TIMESTAMPTZ DEFAULT NOW() NOT NULL
+);
+
+-- ============================================================================
+-- HOUSEHOLD MEMBERS TABLE
+-- ============================================================================
+CREATE TABLE IF NOT EXISTS household_members (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    household_id UUID NOT NULL REFERENCES households(id) ON DELETE CASCADE,
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    role VARCHAR(20) NOT NULL DEFAULT 'viewer' CHECK (role IN ('admin', 'contributor', 'viewer')),
+    joined_at TIMESTAMPTZ DEFAULT NOW() NOT NULL,
+    UNIQUE(household_id, user_id)
+);
+
+-- ============================================================================
+-- HOUSEHOLD LOANS TABLE
+-- ============================================================================
+CREATE TABLE IF NOT EXISTS household_loans (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    household_id UUID NOT NULL REFERENCES households(id) ON DELETE CASCADE,
+    loan_id UUID NOT NULL REFERENCES loans(id) ON DELETE CASCADE,
+    shared_by UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    shared_at TIMESTAMPTZ DEFAULT NOW() NOT NULL,
+    UNIQUE(household_id, loan_id)
+);
+
+-- ============================================================================
+-- LENDER REVIEWS TABLE
+-- ============================================================================
+CREATE TABLE IF NOT EXISTS lender_reviews (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    lender_id UUID NOT NULL REFERENCES lenders(id) ON DELETE CASCADE,
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    rating INTEGER NOT NULL CHECK (rating >= 1 AND rating <= 5),
+    review_text TEXT,
+    experience_type VARCHAR(30) NOT NULL DEFAULT 'general' CHECK (experience_type IN ('application', 'repayment', 'customer_service', 'general')),
+    helpful_count INTEGER NOT NULL DEFAULT 0,
+    created_at TIMESTAMPTZ DEFAULT NOW() NOT NULL,
+    updated_at TIMESTAMPTZ DEFAULT NOW() NOT NULL
+);
+
+-- ============================================================================
+-- REVIEW VOTES TABLE
+-- ============================================================================
+CREATE TABLE IF NOT EXISTS review_votes (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    review_id UUID NOT NULL REFERENCES lender_reviews(id) ON DELETE CASCADE,
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    created_at TIMESTAMPTZ DEFAULT NOW() NOT NULL,
+    UNIQUE(review_id, user_id)
+);
+
+-- ============================================================================
+-- LENDER STATS TABLE (aggregated)
+-- ============================================================================
+CREATE TABLE IF NOT EXISTS lender_stats (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    lender_id UUID NOT NULL UNIQUE REFERENCES lenders(id) ON DELETE CASCADE,
+    avg_rating DECIMAL(3, 2) DEFAULT 0,
+    total_reviews INTEGER NOT NULL DEFAULT 0,
+    avg_approval_days INTEGER,
+    updated_at TIMESTAMPTZ DEFAULT NOW() NOT NULL
+);
+
+-- ============================================================================
+-- BENCHMARKING OPT-IN TABLE
+-- ============================================================================
+CREATE TABLE IF NOT EXISTS benchmarking_opt_in (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID NOT NULL UNIQUE REFERENCES users(id) ON DELETE CASCADE,
+    opted_in BOOLEAN NOT NULL DEFAULT false,
+    opted_in_at TIMESTAMPTZ,
+    created_at TIMESTAMPTZ DEFAULT NOW() NOT NULL
+);
+
+-- ============================================================================
 -- INDEXES
 -- ============================================================================
 CREATE INDEX IF NOT EXISTS idx_loans_user_id ON loans(user_id);
@@ -126,6 +211,14 @@ CREATE INDEX IF NOT EXISTS idx_payments_loan_id ON payments(loan_id);
 CREATE INDEX IF NOT EXISTS idx_payments_user_id ON payments(user_id);
 CREATE INDEX IF NOT EXISTS idx_payments_date ON payments(payment_date DESC);
 CREATE INDEX IF NOT EXISTS idx_scenarios_loan_id ON payment_scenarios(loan_id);
+CREATE INDEX IF NOT EXISTS idx_household_members_user ON household_members(user_id);
+CREATE INDEX IF NOT EXISTS idx_household_members_household ON household_members(household_id);
+CREATE INDEX IF NOT EXISTS idx_household_loans_household ON household_loans(household_id);
+CREATE INDEX IF NOT EXISTS idx_household_loans_loan ON household_loans(loan_id);
+CREATE INDEX IF NOT EXISTS idx_lender_reviews_lender ON lender_reviews(lender_id);
+CREATE INDEX IF NOT EXISTS idx_lender_reviews_user ON lender_reviews(user_id);
+CREATE INDEX IF NOT EXISTS idx_review_votes_review ON review_votes(review_id);
+CREATE INDEX IF NOT EXISTS idx_benchmarking_user ON benchmarking_opt_in(user_id);
 
 -- ============================================================================
 -- SEED DATA: Guyanese Lenders
@@ -182,5 +275,23 @@ CREATE TRIGGER update_payment_scenarios_updated_at
 DROP TRIGGER IF EXISTS update_user_settings_updated_at ON user_settings;
 CREATE TRIGGER update_user_settings_updated_at
     BEFORE UPDATE ON user_settings
+    FOR EACH ROW
+    EXECUTE FUNCTION update_updated_at_column();
+
+DROP TRIGGER IF EXISTS update_households_updated_at ON households;
+CREATE TRIGGER update_households_updated_at
+    BEFORE UPDATE ON households
+    FOR EACH ROW
+    EXECUTE FUNCTION update_updated_at_column();
+
+DROP TRIGGER IF EXISTS update_lender_reviews_updated_at ON lender_reviews;
+CREATE TRIGGER update_lender_reviews_updated_at
+    BEFORE UPDATE ON lender_reviews
+    FOR EACH ROW
+    EXECUTE FUNCTION update_updated_at_column();
+
+DROP TRIGGER IF EXISTS update_lender_stats_updated_at ON lender_stats;
+CREATE TRIGGER update_lender_stats_updated_at
+    BEFORE UPDATE ON lender_stats
     FOR EACH ROW
     EXECUTE FUNCTION update_updated_at_column();

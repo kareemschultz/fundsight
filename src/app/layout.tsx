@@ -2,8 +2,9 @@ import type { Metadata, Viewport } from "next";
 import { Figtree, JetBrains_Mono } from "next/font/google";
 import { ThemeProvider } from "@/components/theme-provider";
 import { SessionProvider } from "@/components/session-provider";
+import { PWARegister } from "@/components/pwa-register";
 import { Toaster } from "@/components/ui/sonner";
-import { APP_NAME, APP_DESCRIPTION, APP_URL } from "@/lib/constants";
+import { APP_NAME, APP_DESCRIPTION, APP_SHORT_NAME, APP_URL } from "@/lib/constants";
 import "./globals.css";
 
 // Primary font — Figtree: clean, modern, geometric sans-serif
@@ -57,6 +58,14 @@ export const metadata: Metadata = {
     index: true,
     follow: true,
   },
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: APP_SHORT_NAME,
+  },
+  other: {
+    "mobile-web-app-capable": "yes",
+  },
 };
 
 export const viewport: Viewport = {
@@ -87,6 +96,7 @@ export default function RootLayout({
         >
           <SessionProvider>
             {children}
+            <PWARegister />
             <Toaster richColors closeButton position="bottom-right" />
           </SessionProvider>
         </ThemeProvider>

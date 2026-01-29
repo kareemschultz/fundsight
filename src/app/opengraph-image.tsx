@@ -36,7 +36,7 @@ export default async function Image() {
             marginBottom: 24,
           }}
         >
-          H
+          FS
         </div>
 
         {/* Title */}
@@ -61,7 +61,7 @@ export default async function Image() {
             maxWidth: 700,
           }}
         >
-          Take the helm of your finances
+          Take control of your financial future
         </div>
 
         {/* Tech badges */}

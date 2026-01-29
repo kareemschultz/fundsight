@@ -13,6 +13,8 @@ const ROUTE_LABELS: Record<string, string> = {
   "/analytics": "Analytics",
   "/reports": "Reports",
   "/settings": "Settings",
+  "/household": "Household",
+  "/lenders": "Lenders",
 };
 
 export function DashboardBreadcrumbs() {

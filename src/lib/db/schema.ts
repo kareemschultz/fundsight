@@ -28,6 +28,9 @@ export const usersRelations = relations(users, ({ many, one }) => ({
   loans: many(loans),
   financialProfile: one(financialProfiles),
   settings: one(userSettings),
+  householdMemberships: many(householdMembers),
+  lenderReviews: many(lenderReviews),
+  reviewVotes: many(reviewVotes),
 }));
 
 // ============================================================================
@@ -45,6 +48,8 @@ export const lenders = pgTable("lenders", {
 
 export const lendersRelations = relations(lenders, ({ many }) => ({
   loans: many(loans),
+  reviews: many(lenderReviews),
+  stats: many(lenderStats),
 }));
 
 // ============================================================================
@@ -85,6 +90,7 @@ export const loansRelations = relations(loans, ({ one, many }) => ({
   }),
   payments: many(payments),
   scenarios: many(paymentScenarios),
+  householdLoans: many(householdLoans),
 }));
 
 // ============================================================================
@@ -216,6 +222,227 @@ export const userSettingsRelations = relations(userSettings, ({ one }) => ({
 }));
 
 // ============================================================================
+// NOTIFICATIONS TABLE
+// ============================================================================
+export const notificationTypes = [
+  "payment_reminder",
+  "milestone",
+  "insight",
+  "gratuity_reminder",
+  "system",
+] as const;
+
+export const notifications = pgTable("notifications", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  userId: uuid("user_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  type: varchar("type", { length: 30 }).notNull(), // payment_reminder | milestone | insight | gratuity_reminder | system
+  title: varchar("title", { length: 200 }).notNull(),
+  message: text("message").notNull(),
+  read: boolean("read").default(false).notNull(),
+  actionUrl: text("action_url"), // optional link to navigate to
+  metadata: jsonb("metadata").default({}), // extra context data
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+});
+
+export const notificationsRelations = relations(notifications, ({ one }) => ({
+  user: one(users, {
+    fields: [notifications.userId],
+    references: [users.id],
+  }),
+}));
+
+// ============================================================================
+// NOTIFICATION PREFERENCES TABLE
+// ============================================================================
+export const notificationPreferences = pgTable("notification_preferences", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  userId: uuid("user_id")
+    .notNull()
+    .unique()
+    .references(() => users.id, { onDelete: "cascade" }),
+  paymentReminders: boolean("payment_reminders").default(true).notNull(),
+  milestoneAlerts: boolean("milestone_alerts").default(true).notNull(),
+  financialInsights: boolean("financial_insights").default(true).notNull(),
+  gratuityReminders: boolean("gratuity_reminders").default(true).notNull(),
+  systemNotifications: boolean("system_notifications").default(true).notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+});
+
+export const notificationPreferencesRelations = relations(
+  notificationPreferences,
+  ({ one }) => ({
+    user: one(users, {
+      fields: [notificationPreferences.userId],
+      references: [users.id],
+    }),
+  })
+);
+
+// ============================================================================
+// HOUSEHOLDS TABLE
+// ============================================================================
+export const households = pgTable("households", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  name: varchar("name", { length: 100 }).notNull(),
+  inviteCode: varchar("invite_code", { length: 20 }).notNull().unique(),
+  createdBy: uuid("created_by").notNull().references(() => users.id, { onDelete: "cascade" }),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+});
+
+export const householdsRelations = relations(households, ({ one, many }) => ({
+  creator: one(users, {
+    fields: [households.createdBy],
+    references: [users.id],
+  }),
+  members: many(householdMembers),
+  loans: many(householdLoans),
+}));
+
+// ============================================================================
+// HOUSEHOLD MEMBERS TABLE
+// ============================================================================
+export const memberRoles = ["admin", "contributor", "viewer"] as const;
+
+export const householdMembers = pgTable("household_members", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  householdId: uuid("household_id").notNull().references(() => households.id, { onDelete: "cascade" }),
+  userId: uuid("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  role: varchar("role", { length: 20 }).notNull().default("viewer"), // admin | contributor | viewer
+  joinedAt: timestamp("joined_at", { withTimezone: true }).defaultNow().notNull(),
+});
+
+export const householdMembersRelations = relations(householdMembers, ({ one }) => ({
+  household: one(households, {
+    fields: [householdMembers.householdId],
+    references: [households.id],
+  }),
+  user: one(users, {
+    fields: [householdMembers.userId],
+    references: [users.id],
+  }),
+}));
+
+// ============================================================================
+// HOUSEHOLD LOANS TABLE
+// ============================================================================
+export const householdLoans = pgTable("household_loans", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  householdId: uuid("household_id").notNull().references(() => households.id, { onDelete: "cascade" }),
+  loanId: uuid("loan_id").notNull().references(() => loans.id, { onDelete: "cascade" }),
+  sharedBy: uuid("shared_by").notNull().references(() => users.id, { onDelete: "cascade" }),
+  sharedAt: timestamp("shared_at", { withTimezone: true }).defaultNow().notNull(),
+});
+
+export const householdLoansRelations = relations(householdLoans, ({ one }) => ({
+  household: one(households, {
+    fields: [householdLoans.householdId],
+    references: [households.id],
+  }),
+  loan: one(loans, {
+    fields: [householdLoans.loanId],
+    references: [loans.id],
+  }),
+  sharer: one(users, {
+    fields: [householdLoans.sharedBy],
+    references: [users.id],
+  }),
+}));
+
+// ============================================================================
+// LENDER REVIEWS TABLE
+// ============================================================================
+export const experienceTypes = ["application", "repayment", "customer_service", "general"] as const;
+
+export const lenderReviews = pgTable("lender_reviews", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  lenderId: uuid("lender_id").notNull().references(() => lenders.id, { onDelete: "cascade" }),
+  userId: uuid("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  rating: integer("rating").notNull(), // 1-5
+  reviewText: text("review_text"),
+  experienceType: varchar("experience_type", { length: 30 }).notNull().default("general"),
+  helpfulCount: integer("helpful_count").notNull().default(0),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+});
+
+export const lenderReviewsRelations = relations(lenderReviews, ({ one, many }) => ({
+  lender: one(lenders, {
+    fields: [lenderReviews.lenderId],
+    references: [lenders.id],
+  }),
+  user: one(users, {
+    fields: [lenderReviews.userId],
+    references: [users.id],
+  }),
+  votes: many(reviewVotes),
+}));
+
+// ============================================================================
+// REVIEW VOTES TABLE (for helpful count)
+// ============================================================================
+export const reviewVotes = pgTable("review_votes", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  reviewId: uuid("review_id").notNull().references(() => lenderReviews.id, { onDelete: "cascade" }),
+  userId: uuid("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+});
+
+export const reviewVotesRelations = relations(reviewVotes, ({ one }) => ({
+  review: one(lenderReviews, {
+    fields: [reviewVotes.reviewId],
+    references: [lenderReviews.id],
+  }),
+  user: one(users, {
+    fields: [reviewVotes.userId],
+    references: [users.id],
+  }),
+}));
+
+// ============================================================================
+// LENDER STATS TABLE (aggregated)
+// ============================================================================
+export const lenderStats = pgTable("lender_stats", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  lenderId: uuid("lender_id").notNull().unique().references(() => lenders.id, { onDelete: "cascade" }),
+  avgRating: decimal("avg_rating", { precision: 3, scale: 2 }).default("0"),
+  totalReviews: integer("total_reviews").notNull().default(0),
+  avgApprovalDays: integer("avg_approval_days"),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+});
+
+export const lenderStatsRelations = relations(lenderStats, ({ one }) => ({
+  lender: one(lenders, {
+    fields: [lenderStats.lenderId],
+    references: [lenders.id],
+  }),
+}));
+
+// ============================================================================
+// BENCHMARKING OPT-IN TABLE
+// ============================================================================
+export const benchmarkingOptIn = pgTable("benchmarking_opt_in", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  userId: uuid("user_id").notNull().unique().references(() => users.id, { onDelete: "cascade" }),
+  optedIn: boolean("opted_in").notNull().default(false),
+  optedInAt: timestamp("opted_in_at", { withTimezone: true }),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+});
+
+export const benchmarkingOptInRelations = relations(benchmarkingOptIn, ({ one }) => ({
+  user: one(users, {
+    fields: [benchmarkingOptIn.userId],
+    references: [users.id],
+  }),
+}));
+
+// ============================================================================
 // TYPE EXPORTS
 // ============================================================================
 export type User = typeof users.$inferSelect;
@@ -238,3 +465,30 @@ export type NewPaymentScenario = typeof paymentScenarios.$inferInsert;
 
 export type UserSettings = typeof userSettings.$inferSelect;
 export type NewUserSettings = typeof userSettings.$inferInsert;
+
+export type Household = typeof households.$inferSelect;
+export type NewHousehold = typeof households.$inferInsert;
+
+export type HouseholdMember = typeof householdMembers.$inferSelect;
+export type NewHouseholdMember = typeof householdMembers.$inferInsert;
+
+export type HouseholdLoan = typeof householdLoans.$inferSelect;
+export type NewHouseholdLoan = typeof householdLoans.$inferInsert;
+
+export type LenderReview = typeof lenderReviews.$inferSelect;
+export type NewLenderReview = typeof lenderReviews.$inferInsert;
+
+export type ReviewVote = typeof reviewVotes.$inferSelect;
+export type NewReviewVote = typeof reviewVotes.$inferInsert;
+
+export type LenderStat = typeof lenderStats.$inferSelect;
+export type NewLenderStat = typeof lenderStats.$inferInsert;
+
+export type BenchmarkingOptIn = typeof benchmarkingOptIn.$inferSelect;
+export type NewBenchmarkingOptIn = typeof benchmarkingOptIn.$inferInsert;
+
+export type Notification = typeof notifications.$inferSelect;
+export type NewNotification = typeof notifications.$inferInsert;
+
+export type NotificationPreference = typeof notificationPreferences.$inferSelect;
+export type NewNotificationPreference = typeof notificationPreferences.$inferInsert;
