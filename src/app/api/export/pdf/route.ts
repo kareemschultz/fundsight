@@ -74,6 +74,7 @@ export async function POST(req: Request) {
                 margin: { left: 14, right: 14 },
             });
 
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             yPosition = (doc as any).lastAutoTable.finalY + 15;
 
             // Loan Details Table
@@ -155,6 +156,7 @@ export async function POST(req: Request) {
                 margin: { left: 14, right: 14 },
             });
 
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             yPosition = (doc as any).lastAutoTable.finalY + 15;
 
             // Payment Details Table

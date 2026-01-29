@@ -23,8 +23,6 @@ export async function GET() {
                 id: true,
                 name: true,
                 email: true,
-                emailVerified: true,
-                image: true,
                 createdAt: true,
             }
         });
@@ -79,14 +77,13 @@ export async function PUT(req: Request) {
             .set({
                 ...(name ? { name } : {}),
                 ...(email ? { email } : {}),
+                updatedAt: new Date(),
             })
             .where(eq(users.id, session.user.id))
             .returning({
                 id: users.id,
                 name: users.name,
                 email: users.email,
-                emailVerified: users.emailVerified,
-                image: users.image,
             });
 
         return NextResponse.json(updatedUser[0]);

@@ -18,6 +18,7 @@ interface Loan {
   vehicleDescription: string | null;
   originalAmount: string;
   currentBalance: string;
+  monthlyPayment: string;
   startDate: string;
   lender: { shortName: string } | null;
 }
@@ -59,7 +60,6 @@ export function MultiLoanChart({ loans }: MultiLoanChartProps) {
       const dataPoint: Record<string, number> = { month };
 
       loans.forEach((loan) => {
-        const originalAmount = parseFloat(loan.originalAmount);
         const currentBalance = parseFloat(loan.currentBalance);
         const monthlyPayment = parseFloat(loan.monthlyPayment || "0");
 

@@ -52,7 +52,6 @@ export function CorrelationChart({ payments, loan }: CorrelationChartProps) {
     return extraPayments.map((payment, index) => {
       const extraAmount = parseFloat(payment.amount);
       const monthlyRate = parseFloat(loan.interestRate) / 12 / 100;
-      const currentBalance = parseFloat(loan.currentBalance);
 
       // Simplified calculation: interest saved ≈ extra payment * monthly rate * remaining months
       // Assuming average 24 months remaining
