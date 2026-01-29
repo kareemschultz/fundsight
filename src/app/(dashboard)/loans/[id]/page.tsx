@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { auth } from "@/lib/auth";
 import { db, loans, payments } from "@/lib/db";
 import { eq, and, desc } from "drizzle-orm";
@@ -17,6 +18,12 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { formatCurrency } from "@/lib/constants";
+
+export const metadata: Metadata = {
+  title: "Loan Details",
+  description: "View loan details, payment history, and progress.",
+};
 
 interface Props {
   params: Promise<{ id: string }>;
@@ -48,15 +55,6 @@ export default async function LoanDetailPage({ params }: Props) {
     orderBy: [desc(payments.paymentDate)],
     limit: 20,
   });
-
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat("en-GY", {
-      style: "currency",
-      currency: "GYD",
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(amount);
-  };
 
   const original = parseFloat(loan.originalAmount);
   const current = parseFloat(loan.currentBalance);

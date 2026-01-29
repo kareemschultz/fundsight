@@ -124,3 +124,22 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Tabular figures for financial data — ensures numbers align in columns */
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Smooth page transitions */
+@media (prefers-reduced-motion: no-preference) {
+  :root {
+    scroll-behavior: smooth;
+  }
+}
+
+/* Focus-visible ring for keyboard navigation */
+@layer base {
+  :focus-visible {
+    @apply outline-ring/70 outline-2 outline-offset-2;
+  }
+}

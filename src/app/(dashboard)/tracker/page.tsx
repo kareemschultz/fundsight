@@ -1,11 +1,12 @@
+import type { Metadata } from "next";
 import { auth } from "@/lib/auth";
 import { db, payments, loans } from "@/lib/db";
 import { eq, desc } from "drizzle-orm";
 import { TrackerClient } from "./tracker-client";
 
-export const metadata = {
-  title: "Payment Tracker | Guyana Loan Tracker",
-  description: "Record and track your loan payments",
+export const metadata: Metadata = {
+  title: "Payment Tracker",
+  description: "Record and track your loan payments with categorized sources.",
 };
 
 export default async function TrackerPage() {

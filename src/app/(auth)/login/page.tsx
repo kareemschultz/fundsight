@@ -1,14 +1,15 @@
+import type { Metadata } from "next";
 import { Suspense } from "react";
 import { LoginForm } from "@/components/auth/login-form";
 
-export const metadata = {
-  title: "Login | Guyana Loan Tracker",
-  description: "Sign in to your loan tracking account",
+export const metadata: Metadata = {
+  title: "Sign In",
+  description: "Sign in to your GPSCCU Financial Platform account.",
 };
 
 export default function LoginPage() {
   return (
-    <Suspense fallback={<div>Loading...</div>}>
+    <Suspense fallback={null}>
       <LoginForm />
     </Suspense>
   );

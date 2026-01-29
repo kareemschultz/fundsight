@@ -62,15 +62,17 @@ export function AppSidebar({ user }: AppSidebarProps) {
   return (
     <Sidebar>
       <SidebarHeader className="border-b border-sidebar-border">
-        <div className="flex items-center gap-3 px-2 py-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary text-primary-foreground font-bold">
-            GLT
+        <Link href="/" className="flex items-center gap-3 px-2 py-3 transition-opacity hover:opacity-80">
+          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary text-primary-foreground font-bold text-sm shadow-sm">
+            GF
           </div>
           <div className="flex flex-col">
-            <span className="text-sm font-semibold">Guyana Loan Tracker</span>
-            <span className="text-xs text-muted-foreground">Pro Edition</span>
+            <span className="text-sm font-semibold">GPSCCU Finance</span>
+            <span className="text-xs text-muted-foreground">
+              Financial Platform
+            </span>
           </div>
-        </div>
+        </Link>
       </SidebarHeader>
 
       <SidebarContent>
@@ -79,11 +81,15 @@ export function AppSidebar({ user }: AppSidebarProps) {
           <SidebarGroupContent>
             <SidebarMenu>
               {navigation.map((item) => {
-                const isActive = pathname === item.href ||
+                const isActive =
+                  pathname === item.href ||
                   (item.href !== "/" && pathname.startsWith(item.href));
                 return (
                   <SidebarMenuItem key={item.name}>
-                    <SidebarMenuButton render={<Link href={item.href} />} isActive={isActive}>
+                    <SidebarMenuButton
+                      render={<Link href={item.href} />}
+                      isActive={isActive}
+                    >
                       <HugeiconsIcon icon={item.icon} size={20} />
                       <span>{item.name}</span>
                     </SidebarMenuButton>
@@ -95,11 +101,14 @@ export function AppSidebar({ user }: AppSidebarProps) {
         </SidebarGroup>
 
         <SidebarGroup>
-          <SidebarGroupLabel>Settings</SidebarGroupLabel>
+          <SidebarGroupLabel>Account</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               <SidebarMenuItem>
-                <SidebarMenuButton render={<Link href="/settings" />} isActive={pathname === "/settings"}>
+                <SidebarMenuButton
+                  render={<Link href="/settings" />}
+                  isActive={pathname === "/settings"}
+                >
                   <HugeiconsIcon icon={Settings01Icon} size={20} />
                   <span>Settings</span>
                 </SidebarMenuButton>
@@ -111,17 +120,17 @@ export function AppSidebar({ user }: AppSidebarProps) {
 
       <SidebarFooter className="border-t border-sidebar-border">
         <div className="flex items-center justify-between p-2">
-          <div className="flex items-center gap-2">
-            <Avatar className="h-8 w-8">
-              <AvatarFallback className="bg-primary/10 text-primary text-xs">
+          <div className="flex items-center gap-2 min-w-0">
+            <Avatar className="h-8 w-8 shrink-0">
+              <AvatarFallback className="bg-primary/10 text-primary text-xs font-medium">
                 {getInitials(user.name)}
               </AvatarFallback>
             </Avatar>
-            <div className="flex flex-col">
-              <span className="text-sm font-medium truncate max-w-[120px]">
+            <div className="flex flex-col min-w-0">
+              <span className="text-sm font-medium truncate">
                 {user.name}
               </span>
-              <span className="text-xs text-muted-foreground truncate max-w-[120px]">
+              <span className="text-xs text-muted-foreground truncate">
                 {user.email}
               </span>
             </div>
@@ -129,6 +138,7 @@ export function AppSidebar({ user }: AppSidebarProps) {
           <Button
             variant="ghost"
             size="icon"
+            className="shrink-0"
             onClick={() => signOut({ callbackUrl: "/login" })}
             title="Sign out"
           >

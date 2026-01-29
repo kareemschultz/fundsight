@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { auth } from "@/lib/auth";
 import { db, loans } from "@/lib/db";
 import { eq } from "drizzle-orm";
@@ -7,10 +8,11 @@ import { buttonVariants } from "@/components/ui/button-variants";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { format } from "date-fns";
+import { formatCurrency } from "@/lib/constants";
 
-export const metadata = {
-  title: "My Loans | Guyana Loan Tracker",
-  description: "Manage your car loans",
+export const metadata: Metadata = {
+  title: "My Loans",
+  description: "Manage and track all your active and paid-off loans.",
 };
 
 export default async function LoansPage() {
@@ -28,22 +30,13 @@ export default async function LoansPage() {
     orderBy: (loans, { desc }) => [desc(loans.createdAt)],
   });
 
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat("en-GY", {
-      style: "currency",
-      currency: "GYD",
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(amount);
-  };
-
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">My Loans</h1>
           <p className="text-muted-foreground">
-            Manage and track all your car loans
+            Manage and track all your active loans
           </p>
         </div>
         <Link href="/loans/new" className={buttonVariants()}>

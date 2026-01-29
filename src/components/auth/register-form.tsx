@@ -81,9 +81,9 @@ export function RegisterForm() {
   return (
     <Card>
       <CardHeader className="text-center">
-        <CardTitle className="text-2xl">Create Account</CardTitle>
+        <CardTitle className="text-2xl">Create an account</CardTitle>
         <CardDescription>
-          Start tracking your car loans from Guyanese banks
+          Start managing your finances with GPSCCU
         </CardDescription>
       </CardHeader>
       <form onSubmit={handleSubmit}>

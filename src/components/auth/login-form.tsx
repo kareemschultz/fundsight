@@ -65,9 +65,9 @@ export function LoginForm() {
   return (
     <Card>
       <CardHeader className="text-center">
-        <CardTitle className="text-2xl">Welcome Back</CardTitle>
+        <CardTitle className="text-2xl">Welcome back</CardTitle>
         <CardDescription>
-          Sign in to your Guyana Loan Tracker account
+          Sign in to your account to continue
         </CardDescription>
       </CardHeader>
       <form onSubmit={handleSubmit}>
