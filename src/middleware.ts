@@ -8,7 +8,7 @@ export default auth;
 
 export const config = {
   matcher: [
-    // Match all routes except static files and images
-    "/((?!_next/static|_next/image|favicon.ico|.*\\.png$|.*\\.svg$).*)",
+    // Match all routes except static files, images, PWA assets
+    "/((?!_next/static|_next/image|favicon.ico|sw\\.js|icons/|.*\\.png$|.*\\.svg$|.*\\.webmanifest$).*)",
   ],
 };

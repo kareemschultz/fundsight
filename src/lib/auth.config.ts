@@ -1,7 +1,7 @@
 import type { NextAuthConfig } from "next-auth";
 
 // Routes that don't require authentication
-export const publicRoutes = ["/login", "/register", "/api/auth", "/api/register"];
+export const publicRoutes = ["/login", "/register", "/api/auth", "/api/register", "/offline"];
 
 // Base auth config for Edge runtime (middleware)
 // Does NOT include adapter or bcrypt - those require Node.js runtime
