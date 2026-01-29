@@ -422,8 +422,8 @@ erDiagram
 
 ```bash
 # 1. Clone the repository
-git clone https://github.com/kareemschultz/gpsccu-loan-tracker.git
-cd gpsccu-loan-tracker
+git clone https://github.com/kareemschultz/fundsight.git
+cd fundsight
 
 # 2. Install dependencies
 bun install
@@ -610,7 +610,7 @@ All API routes are RESTful and require JWT authentication (except auth and regis
 ## 📁 Project Structure
 
 ```
-gpsccu-loan-tracker/
+fundsight/
 ├── 📄 docker-compose.yml          # Docker services (app + PostgreSQL)
 ├── 📄 Dockerfile                   # Multi-stage production build
 ├── 📄 drizzle.config.ts           # Drizzle ORM configuration
